@@ -1,0 +1,21 @@
+server:
+    port: 8080
+    servlet:
+        context-path: /api/v1
+    error:
+        include-stacktrace: never
+        include-message: never
+spring:
+    datasource:
+        url: jdbc:postgresql://localhost:5432/sb_users
+        username: root
+        password: root
+    jpa:
+        hibernate:
+            ddl-auto: create
+        properties:
+            hibernate:
+                format_sql: true
+        open-in-view: false
+    jackson:
+        default-property-inclusion: non_null
