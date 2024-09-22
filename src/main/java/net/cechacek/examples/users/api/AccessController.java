@@ -1,9 +1,12 @@
 package net.cechacek.examples.users.api;
 
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import net.cechacek.examples.users.api.dto.AccessResponse;
 import net.cechacek.examples.users.domain.Access;
 import net.cechacek.examples.users.api.dto.AccessRequest;
 import net.cechacek.examples.users.services.AccessService;
+import net.cechacek.examples.users.util.AccessMapper;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -16,6 +19,7 @@ import org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBui
 
 import java.net.URI;
 import java.util.List;
+import java.util.Optional;
 
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
 
@@ -25,48 +29,69 @@ import static org.springframework.web.servlet.mvc.method.annotation.MvcUriCompon
 public class AccessController {
 
     private final AccessService accessService;
+    private final AccessMapper accessMapper;
 
     @GetMapping
-    public ResponseEntity<List<Access>> list() {
-        var list = accessService.findAll();
-        return ResponseEntity.ok(list);
+    public ResponseEntity<List<AccessResponse>> list() {
+        var accessList = accessService.findAll();
+        var response = accessMapper.toResponse(accessList);
+        return ResponseEntity.ok(response);
     }
 
     @GetMapping("/projects/{id}")
-    public ResponseEntity<List<Access>> listAllByProject(@PathVariable String id) {
-        var list = accessService.findAllByProject(id);
-        return ResponseEntity.ok(list);
+    public ResponseEntity<List<AccessResponse>> listAllByProject(@PathVariable String id) {
+        var accessList = accessService.findAllByProject(id);
+        var response = accessMapper.toResponse(accessList);
+        return ResponseEntity.ok(response);
     }
 
     @GetMapping("/users/{id}")
-    public ResponseEntity<List<Access>> listAllByUser(@PathVariable long id) {
-        var list = accessService.findAllByUser(id);
-        return ResponseEntity.ok(list);
+    public ResponseEntity<List<AccessResponse>> listAllByUser(@PathVariable long id) {
+        var accessList = accessService.findAllByUser(id);
+        var response = accessMapper.toResponse(accessList);
+        return ResponseEntity.ok(response);
     }
 
     @GetMapping(path = "/users/{userId}/projects/{projectId}")
-    public ResponseEntity<Access> get(@PathVariable long userId, @PathVariable String projectId) {
+    public ResponseEntity<AccessResponse> get(@PathVariable long userId, @PathVariable String projectId) {
         return accessService.findByUserAndProject(userId, projectId)
+                .map(accessMapper::toResponse)
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
     }
 
     @PutMapping(path = "/users/{userId}/projects/{projectId}")
-    public ResponseEntity<Access> put(@PathVariable long userId, @PathVariable String projectId,
-                                      @RequestBody(required = false) AccessRequest request) {
-        return accessService.update(userId, projectId, request)
-                .map(ResponseEntity::ok)
-                .orElseGet(() -> {
-                    var resource = accessService.create(userId, projectId, request);
-                    var uri = getAccessUri(userId, projectId);
-                    return ResponseEntity.created(uri).body(resource);
-                });
+    public ResponseEntity<AccessResponse> put(@PathVariable long userId, @PathVariable String projectId,
+                                              @RequestBody(required = false) @Valid AccessRequest request) {
+        return update(userId, projectId, request)
+                .or(() -> create(userId, projectId, request))
+                .orElseGet(() -> ResponseEntity.notFound().build());
     }
 
     @DeleteMapping(path = "/users/{userId}/projects/{projectId}")
     public ResponseEntity<Void> delete(@PathVariable long userId, @PathVariable String projectId) {
         accessService.deleteByUserAndProject(userId, projectId);
         return ResponseEntity.noContent().build();
+    }
+
+    private Optional<ResponseEntity<AccessResponse>> update(long userId, String projectId, AccessRequest request) {
+
+        return accessService
+                .update(userId, projectId, request.getProjectName())
+                .map(accessMapper::toResponse)
+                .map(ResponseEntity::ok);
+    }
+
+    private Optional<ResponseEntity<AccessResponse>> create(long userId, String projectId, AccessRequest request) {
+        return accessService
+                .create(userId, projectId, request.getProjectName())
+                .map(accessMapper::toResponse)
+                .map(this::createdResponse);
+    }
+
+    private ResponseEntity<AccessResponse> createdResponse(AccessResponse response) {
+        var uri = getAccessUri(response.getUserId(), response.getProjectId());
+        return ResponseEntity.created(uri).body(response);
     }
 
     private URI getAccessUri(long userId, String projectId) {

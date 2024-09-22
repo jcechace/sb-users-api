@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import net.cechacek.examples.users.api.dto.UserRequest;
 import net.cechacek.examples.users.domain.User;
 import net.cechacek.examples.users.persistence.access.UserRepository;
+import net.cechacek.examples.users.util.UserMapper;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -13,24 +14,22 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class UserService {
 
+    private final UserMapper userMapper;
     private final UserRepository userRepository;
 
     public List<User> findAll() {
-        return userRepository.findAll()
-                .stream()
-                .map(User::fromEntity)
-                .toList();
+        var entities = userRepository.findAll();
+        return userMapper.toModel(entities);
     }
 
     public Optional<User> findById(long id) {
-        return userRepository.findById(id)
-                .map(User::fromEntity);
+        return userRepository.findById(id).map(userMapper::toModel);
     }
 
-    public User create(UserRequest request) {
-        var entity = request.toEntity();
+    public User create(User user) {
+        var entity = userMapper.toEntity(user);
         entity = userRepository.save(entity);
-        return User.fromEntity(entity);
+        return userMapper.toModel(entity);
     }
 
     public void delete(long id) {

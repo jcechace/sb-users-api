@@ -3,10 +3,10 @@ package net.cechacek.examples.users.services;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import net.cechacek.examples.users.domain.Access;
-import net.cechacek.examples.users.api.dto.AccessRequest;
 import net.cechacek.examples.users.persistence.AccessEntity;
 import net.cechacek.examples.users.persistence.access.AccessRepository;
 import net.cechacek.examples.users.persistence.access.UserRepository;
+import net.cechacek.examples.users.util.AccessMapper;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -19,52 +19,43 @@ public class AccessService {
 
     private final AccessRepository accessRepository;
     private final UserRepository userRepository;
+    private final AccessMapper accessMapper;
 
     public List<Access> findAll() {
-        return accessRepository.findAll()
-                .stream()
-                .map(Access::fromEntity)
-                .toList();
+        var entities =  accessRepository.findAll();
+        return accessMapper.toModel(entities);
     }
 
     public List<Access> findAllByUser(long userId) {
-        return accessRepository.findAllByUserId(userId)
-                .stream()
-                .map(Access::fromEntity)
-                .toList();
+        var entities = accessRepository.findAllByUserId(userId);
+        return accessMapper.toModel(entities);
     }
 
     public List<Access> findAllByProject(String projectId) {
-        return accessRepository.findAllByProjectId(projectId)
-                .stream()
-                .map(Access::fromEntity)
-                .toList();
+        var entities = accessRepository.findAllByProjectId(projectId);
+        return accessMapper.toModel(entities);
     }
 
     public Optional<Access> findByUserAndProject(long userId, String projectId) {
         return accessRepository.findByUserIdAndProjectId(userId, projectId)
-                .map(Access::fromEntity);
+                .map(accessMapper::toModel);
     }
 
-
     @Transactional(Transactional.TxType.REQUIRED)
-    public Optional<Access> update(long userId, String projectId, AccessRequest request) {
+    public Optional<Access> update(long userId, String projectId, String projectName) {
         return accessRepository
                 .findByUserIdAndProjectId(userId, projectId)
-                .map(e -> {
-                    e.setProjectName(request.getProjectName());
-                    return e;})
+                .map(access -> access.withProjectName(projectName))
                 .map(accessRepository::save)
-                .map(Access::fromEntity);
+                .map(accessMapper::toModel);
     }
 
     @Transactional(Transactional.TxType.REQUIRED)
-    public Access create(long userId, String projectId, AccessRequest request) {
-        var user = userRepository.getReferenceById(userId);
-        var entity = new AccessEntity(null, user, projectId, request.getProjectName());
-        entity = accessRepository.save(entity);
-
-        return Access.fromEntity(entity);
+    public Optional<Access> create(long userId, String projectId, String projectName) {
+        return userRepository.findById(userId)
+                .map(user -> new AccessEntity(null, user, projectId, projectName))
+                .map(accessRepository::save)
+                .map(accessMapper::toModel);
     }
 
     @Transactional(Transactional.TxType.REQUIRED)
