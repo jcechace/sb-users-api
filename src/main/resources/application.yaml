@@ -1,3 +1,8 @@
+jwt:
+    issuer: Users-API
+    expiration: 10m
+    algorithm: HS256
+    secret: aVNg6VQgndui9q9KtficEyQVVPNbf8iM
 server:
     port: 8080
     servlet:

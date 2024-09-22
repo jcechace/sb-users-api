@@ -2,12 +2,13 @@ package net.cechacek.examples.users.api;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import net.cechacek.examples.users.api.dto.AccessResponse;
-import net.cechacek.examples.users.domain.Access;
 import net.cechacek.examples.users.api.dto.AccessRequest;
 import net.cechacek.examples.users.services.AccessService;
 import net.cechacek.examples.users.util.AccessMapper;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -23,10 +24,16 @@ import java.util.Optional;
 
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
 
+/**
+ * Rest API for access management
+ */
 @RestController()
-@RequestMapping(value = "/access")
+@RequestMapping(value = AccessController.PATH)
 @RequiredArgsConstructor
+@Slf4j
+@PreAuthorize("isAuthenticated()")
 public class AccessController {
+    public static final String PATH = "/access";
 
     private final AccessService accessService;
     private final AccessMapper accessMapper;
@@ -63,6 +70,7 @@ public class AccessController {
     @PutMapping(path = "/users/{userId}/projects/{projectId}")
     public ResponseEntity<AccessResponse> put(@PathVariable long userId, @PathVariable String projectId,
                                               @RequestBody(required = false) @Valid AccessRequest request) {
+        log.info("Received request to grant access to project {} for user {}", projectId, userId);
         return update(userId, projectId, request)
                 .or(() -> create(userId, projectId, request))
                 .orElseGet(() -> ResponseEntity.notFound().build());
@@ -70,6 +78,7 @@ public class AccessController {
 
     @DeleteMapping(path = "/users/{userId}/projects/{projectId}")
     public ResponseEntity<Void> delete(@PathVariable long userId, @PathVariable String projectId) {
+        log.info("Received request to revoke access to project {} for user {}", projectId, userId);
         accessService.deleteByUserAndProject(userId, projectId);
         return ResponseEntity.noContent().build();
     }

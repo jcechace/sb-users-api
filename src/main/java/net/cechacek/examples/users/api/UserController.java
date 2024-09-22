@@ -2,11 +2,13 @@ package net.cechacek.examples.users.api;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import net.cechacek.examples.users.api.dto.UserRequest;
 import net.cechacek.examples.users.api.dto.UserResponse;
 import net.cechacek.examples.users.services.UserService;
 import net.cechacek.examples.users.util.UserMapper;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -21,10 +23,15 @@ import java.util.List;
 
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
 
+/**
+ * Rest API for user management
+ */
 @RestController()
-@RequestMapping(value = "/users")
+@RequestMapping(value = UserController.PATH)
 @RequiredArgsConstructor
+@Slf4j
 public class UserController {
+    public static final String PATH = "/users";
 
     private final UserService userService;
     private final UserMapper userMapper;
@@ -46,14 +53,17 @@ public class UserController {
 
     @PostMapping
     public ResponseEntity<UserResponse> post(@RequestBody @Valid UserRequest request) {
+        log.info("Received request to create user  {}", request.getEmail());
         var user = userMapper.toModel(request);
         user = userService.create(user);
         var resp = userMapper.toResponse(user);
         return ResponseEntity.created(getUserUri(user.getId())).body(resp);
     }
 
+    @PreAuthorize("isAuthenticated()")
     @DeleteMapping(value = "/{id}")
     public ResponseEntity<Void> delete(@PathVariable long id) {
+        log.info("Received request to delete user with id {}", id);
         userService.delete(id);
         return ResponseEntity.noContent().build();
     }
