@@ -1,0 +1,25 @@
+DROP TABLE IF EXISTS ACCESS;
+DROP TABLE IF EXISTS USERS;
+
+CREATE TABLE USERS
+(
+    id   BIGSERIAL PRIMARY KEY,
+    name VARCHAR(255) NOT NULL,
+    email VARCHAR(255) NOT NULL,
+    password VARCHAR(255) NOT NULL,
+    disabled BOOLEAN NOT NULL DEFAULT FALSE,
+    UNIQUE (email)
+);
+
+
+CREATE TABLE ACCESS
+(
+    id   BIGSERIAL PRIMARY KEY,
+    user_id BIGINT NOT NULL,
+    project_id VARCHAR(255) NOT NULL,
+    project_name VARCHAR(255) NOT NULL,
+    FOREIGN KEY (user_id) REFERENCES USERS (id),
+    UNIQUE (user_id, project_id)
+);
+
+
