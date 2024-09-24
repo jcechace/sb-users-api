@@ -13,8 +13,9 @@ import org.springframework.validation.annotation.Validated;
 import javax.crypto.SecretKey;
 import java.time.Duration;
 
-
-
+/**
+ * Configuration properties for JWT.
+ */
 @Getter
 @Setter
 @Validated

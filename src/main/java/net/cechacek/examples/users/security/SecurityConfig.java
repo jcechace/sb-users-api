@@ -25,6 +25,9 @@ import org.springframework.security.oauth2.server.resource.web.BearerTokenAuthen
 import org.springframework.security.oauth2.server.resource.web.access.BearerTokenAccessDeniedHandler;
 import org.springframework.security.web.SecurityFilterChain;
 
+/**
+ * Security configuration related to security
+ */
 @Configuration
 @EnableWebSecurity
 @EnableMethodSecurity
