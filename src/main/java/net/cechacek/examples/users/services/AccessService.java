@@ -2,7 +2,7 @@ package net.cechacek.examples.users.services;
 
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
-import net.cechacek.examples.users.domain.Access;
+import net.cechacek.examples.users.services.domain.Access;
 import net.cechacek.examples.users.persistence.AccessEntity;
 import net.cechacek.examples.users.persistence.access.AccessRepository;
 import net.cechacek.examples.users.persistence.access.UserRepository;

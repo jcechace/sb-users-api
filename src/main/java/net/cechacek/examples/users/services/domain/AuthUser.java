@@ -1,4 +1,4 @@
-package net.cechacek.examples.users.domain;
+package net.cechacek.examples.users.services.domain;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

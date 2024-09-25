@@ -1,7 +1,7 @@
 package net.cechacek.examples.users.util;
 
 import net.cechacek.examples.users.api.dto.AccessResponse;
-import net.cechacek.examples.users.domain.Access;
+import net.cechacek.examples.users.services.domain.Access;
 import net.cechacek.examples.users.persistence.AccessEntity;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;

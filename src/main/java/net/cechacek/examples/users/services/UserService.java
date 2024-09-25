@@ -2,7 +2,7 @@ package net.cechacek.examples.users.services;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import net.cechacek.examples.users.domain.User;
+import net.cechacek.examples.users.services.domain.User;
 import net.cechacek.examples.users.persistence.access.UserRepository;
 import net.cechacek.examples.users.util.UserMapper;
 import org.springframework.security.crypto.password.PasswordEncoder;

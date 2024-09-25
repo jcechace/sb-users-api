@@ -18,6 +18,12 @@ import org.hibernate.annotations.SoftDeleteType;
 
 import java.util.List;
 
+/**
+ * User entity.
+ * <p>
+ * Note that users are soft-deleted. Which means that the actual record remains in the database.
+ *</p>
+ */
 @Entity
 @SoftDelete(strategy = SoftDeleteType.DELETED, columnName = "disabled")
 @NoArgsConstructor

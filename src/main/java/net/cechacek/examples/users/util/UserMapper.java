@@ -2,8 +2,8 @@ package net.cechacek.examples.users.util;
 
 import net.cechacek.examples.users.api.dto.UserRequest;
 import net.cechacek.examples.users.api.dto.UserResponse;
-import net.cechacek.examples.users.domain.AuthUser;
-import net.cechacek.examples.users.domain.User;
+import net.cechacek.examples.users.services.domain.AuthUser;
+import net.cechacek.examples.users.services.domain.User;
 import net.cechacek.examples.users.persistence.UserEntity;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;

@@ -2,7 +2,7 @@ package net.cechacek.examples.users.services;
 
 import jakarta.transaction.Transactional;
 import net.cechacek.examples.users.TestcontainersConfiguration;
-import net.cechacek.examples.users.domain.Access;
+import net.cechacek.examples.users.services.domain.Access;
 import net.cechacek.examples.users.persistence.AccessEntity;
 import net.cechacek.examples.users.persistence.UserEntity;
 import net.cechacek.examples.users.persistence.access.AccessRepository;
