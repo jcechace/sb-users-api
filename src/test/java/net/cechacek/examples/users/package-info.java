@@ -2,7 +2,8 @@
  * Tests utilise Test Containers to run against a real database.
  * Although that would classify the tests as integration I personally
  * think that such tests are more likely to catch issue, and it also makes
- * the test more readable than using mocks. In practice a combination would be used
+ * the test more readable than using mocks. In practice a combination  with
+ * unit tests would be used
  *
  * <br>
  *
